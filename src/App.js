@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import logo from './logo.svg';
 import './App.css';
+import update from 'immutability-helper';
 import { Grid, Row, Col, PageHeader, Form, Table, Checkbox, FormGroup, ControlLabel, FormControl, HelpBlock, Image, Button, Alert} from 'react-bootstrap';
 
 function FieldGroup({ id, label, help, ...props }) {
@@ -51,7 +52,7 @@ class App extends Component {
     let playersState = [];
     for(var i=1; i<=noOfPlayers; i++) {
       playersState.push(
-        {["formControlsTextPts" + i]: '', ["formControlsTextFTA" + i]: '', ["formControlsTextFTM" + i]: '', ["formControlsText3pt" + i]: '', ["formControlsTextFls" + i]: '', played: 1, dnp: false}
+        {["formControlsTextPts" + i]: '', ["formControlsTextFTA" + i]: '', ["formControlsTextFTM" + i]: '', ["formControlsText3pt" + i]: '', ["formControlsTextFls" + i]: '', played: 1, dnp: false, valid: false, invalidClass: ''}
       );
     }
     console.log(playersState);
@@ -198,10 +199,16 @@ class App extends Component {
     const target = event.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
+    const players = this.state.players;
+    const pid = target.attributes.getNamedItem('data-pid').value -1;
 
-    console.log(name);
-    this.setState({[name]: value},
-    () => { this.validatePlayerField(name, value) });
+    players[pid][name] = value;
+    console.log(pid + "--" + players[pid][name])
+
+    this.setState({
+      players,
+    },
+    () => { this.validatePlayerField(name, value, players, pid) });
   }
 
   handleCheckboxDNP = (event) =>  {
@@ -221,42 +228,80 @@ class App extends Component {
 
   setPlayerDNP(pid) {
     const players = this.state.players;
-    players[pid-1]["formControlsTextPts" + pid] = 0;
-    players[pid-1]["formControlsTextFTA" + pid] = 0;
-    players[pid-1]["formControlsTextFTM" + pid] = 0;
-    players[pid-1]["formControlsText3pt" + pid] = 0;
-    players[pid-1]["formControlsTextFls" + pid] = 0;
-    players[pid-1].played = 0;
-    players[pid-1].dnp = true;
+    const myPid = pid -1;
+
+    players[myPid]["formControlsTextPts" + pid] = 0;
+    players[myPid]["formControlsTextFTA" + pid] = 0;
+    players[myPid]["formControlsTextFTM" + pid] = 0;
+    players[myPid]["formControlsText3pt" + pid] = 0;
+    players[myPid]["formControlsTextFls" + pid] = 0;
+    players[myPid].played = 0;
+    players[myPid].dnp = true;
+    players[myPid].invalid = '';
 
     this.forceUpdate();
+    this.validatePlayerForm();
   }
 
   resetPlayerDNP(pid) {
     const players = this.state.players;
-    players[pid-1]["formControlsTextPts" + pid] = '';
-    players[pid-1]["formControlsTextFTA" + pid] = '';
-    players[pid-1]["formControlsTextFTM" + pid] = '';
-    players[pid-1]["formControlsText3pt" + pid] = '';
-    players[pid-1]["formControlsTextFls" + pid] = '';
-    players[pid-1].played = 1;
-    players[pid-1].dnp = false;
+    const myPid = pid -1;
+
+    players[myPid]["formControlsTextPts" + pid] = '';
+    players[myPid]["formControlsTextFTA" + pid] = '';
+    players[myPid]["formControlsTextFTM" + pid] = '';
+    players[myPid]["formControlsText3pt" + pid] = '';
+    players[myPid]["formControlsTextFls" + pid] = '';
+    players[myPid].played = 1;
+    players[myPid].dnp = false;
+    players[myPid].invalid = '';
 
     this.forceUpdate();
+    this.setState({playersFormValid: false});
   }
 
-  validatePlayerField(fieldName, value) {
+  validatePlayerField(fieldName, value, players, pid) {
     
-    this[fieldName + "Valid"] = (value.length > 0 && !/\D/.test(value)) ? true : false;
+    // TODO: remove this per row validation, add to player form field validtion below, which checkes each
+    // field already
+    const valid = (value.length > 0 && !/\D/.test(value)) ? true : false;
 
-    console.log(fieldName  + " is valid:" + this[fieldName + "Valid"]);
+    console.log(fieldName + " is invalid: " + valid);
+    players[pid].valid = valid;
+    players[pid].invalidClass = (valid) ? '' : ' is invalid';
 
-    // this.setState({[fieldName + "Valid"]: this[fieldName + "Valid"],
-    //               }, this.validateForm);
+    this.setState({
+      players,
+    }, this.validatePlayerForm);
   }
 
-  validateForm() {
-    this.setState({resultFormValid: this.state.t1PtsValid && this.state.t2PtsValid});
+  validatePlayerForm() {  
+    const noOfPlayers = this.state.items.players;
+    const players = this.state.players;
+    let currentInvalidTotal = 0;
+    let validForm = false;
+
+    // Loop through number of players returned in data, then by PID within that loop
+    for(var i=0; i < noOfPlayers.length; i++) {
+      for(var key in players[noOfPlayers[i].PID -1]) {
+        if (players[noOfPlayers[i].PID -1].hasOwnProperty(key) && key.indexOf('form') !== -1 && players[noOfPlayers[i].PID -1]) {
+          if(players[noOfPlayers[i].PID -1][key] === '') {
+            // check if empty add to invalid total
+            console.log(players[noOfPlayers[i].PID -1][key]);
+            currentInvalidTotal++;
+            break
+          } else if (/\D/.test(players[noOfPlayers[i].PID -1][key])) {
+            // check here for valid num, if not add to invalid total
+            currentInvalidTotal++;
+            break
+          }
+        }
+      }
+    }
+    console.log(currentInvalidTotal);
+    // When there are no invalid fields, user can submit
+    validForm = (currentInvalidTotal === 0) ? true : false;
+    this.setState({playersFormValid: validForm});
   }
 
   render() {
@@ -296,7 +341,7 @@ class App extends Component {
                   </thead>
                   <tbody>
                     {items.players.map(item => (
-                      <tr key={item.PID}>
+                      <tr key={item.PID} className={this.errorClass(players[item.PID -1].invalidClass)}>
                         <td>{items.latestRound[0].roundName} ({items.prevRound[0].Round + 1})</td>
                         <td>{items.latestRound[0].roundID}</td>
                         <td>{item.PID}</td>
@@ -308,6 +353,7 @@ class App extends Component {
                               value={players[item.PID -1]["formControlsTextPts" + item.PID]}
                               disabled={players[item.PID -1].dnp}
                               onChange={this.handlePlayerInputChange}
+                              data-pid={item.PID}
                             />
                         </td>
                         <td>
@@ -317,6 +363,7 @@ class App extends Component {
                               value={players[item.PID -1]["formControlsTextFTA" + item.PID]}
                               disabled={players[item.PID -1].dnp}
                               onChange={this.handlePlayerInputChange}
+                              data-pid={item.PID}
                             />
                         </td>
                         <td>
@@ -326,6 +373,7 @@ class App extends Component {
                               value={players[item.PID -1]["formControlsTextFTM" + item.PID]}
                               disabled={players[item.PID -1].dnp}
                               onChange={this.handlePlayerInputChange}
+                              data-pid={item.PID}
                             />
                         </td>
                         <td>
@@ -335,6 +383,7 @@ class App extends Component {
                               value={players[item.PID -1]["formControlsText3pt" + item.PID]}
                               disabled={players[item.PID -1].dnp}
                               onChange={this.handlePlayerInputChange}
+                              data-pid={item.PID}
                             />
                         </td>
                         <td>
@@ -344,6 +393,7 @@ class App extends Component {
                               value={players[item.PID -1]["formControlsTextFls" + item.PID]}
                               disabled={players[item.PID -1].dnp}
                               onChange={this.handlePlayerInputChange}
+                              data-pid={item.PID}
                             />
                         </td>
                         <td>{items.latestRound[0].seasonID}</td>
