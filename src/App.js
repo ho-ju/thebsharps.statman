@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import logo from './logo.svg';
 import './App.css';
-import { Grid, Row, Col, PageHeader, Form, Table, Checkbox, FormGroup, ControlLabel, FormControl, HelpBlock, Image, Button} from 'react-bootstrap';
+import { Grid, Row, Col, PageHeader, Form, Table, Checkbox, FormGroup, ControlLabel, FormControl, HelpBlock, Image, Button, Alert} from 'react-bootstrap';
 
 function FieldGroup({ id, label, help, ...props }) {
   return (
@@ -26,22 +26,40 @@ class App extends Component {
       t1Pts: '',
       t2Pts: '',
       resultOptions: [
-        {key:'1', val:'DEF', disp: 'WON'},
-        {key:'2', val:'LST', disp: 'LOST'},
-        {key:'3', val:'DRW', disp: 'DRAW'},
-        {key:'4', val:'BYE', disp: 'BYE'},
+        {key:'1', val:'DEF'},
+        {key:'2', val:'LST'},
+        {key:'3', val:'DRW'},
+        {key:'4', val:'BYE'},
       ],
-      selectRes: 'WON',
+      selectRes: 'DEF',
       t1PtsValid: false,
       t2PtsValid: false,
       resultFormErrors: {t1Pts: '', t2Pts: ''},
-      resultFormValid: false
+      resultFormValid: false,
+
+      players: [],
+      playersFormValid: false
     }
 
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handlePlayerInputChange = this.handlePlayerInputChange.bind(this);
+    this.handleCheckboxDNP = this.handleCheckboxDNP.bind(this);
   }
 
   componentDidMount() {
+    const noOfPlayers = 14;
+    let playersState = [];
+    for(var i=1; i<=noOfPlayers; i++) {
+      playersState.push(
+        {["formControlsTextPts" + i]: '', ["formControlsTextFTA" + i]: '', ["formControlsTextFTM" + i]: '', ["formControlsText3pt" + i]: '', ["formControlsTextFls" + i]: '', played: 1, dnp: false}
+      );
+    }
+    console.log(playersState);
+
+    this.setState({
+      players: playersState
+    })
+
     fetch('//thebsharps/services/stat-man/')
       .then(res => res.json())
       .then(
@@ -65,17 +83,20 @@ class App extends Component {
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
 
-    if(name == "selectRes") {
-      if(value == "BYE") {
+    if(name === "selectRes") {
+      this.setState({selectRes: value});
+      if(value === "BYE") {
         this.setState({
           byeIsChecked: true
         })
         this.setByeValues();
       } else {
-        this.setState({
-          byeIsChecked: false
-        })
-        this.resetByeValues();
+        if(this.state.byeIsChecked){
+          this.setState({
+            byeIsChecked: false
+          });
+          this.resetByeValues();
+        }
       }
     } else {
       this.setState({[name]: value},
@@ -88,12 +109,10 @@ class App extends Component {
     let t1PtsValid = this.state.t1PtsValid;
     let t2PtsValid = this.state.t2PtsValid;
 
-
     switch(fieldName) {
       case 't1Pts':
       case 't2Pts':
         this[fieldName + "Valid"] = (value.length > 0 && !/\D/.test(value)) ? true : false;
-        console.log(this[fieldName + "Valid"]);
         fieldValidationErrors[fieldName] = this[fieldName + "Valid"] ? '' : ' is invalid';
         break;
       default:
@@ -105,7 +124,6 @@ class App extends Component {
   }
 
   validateForm() {
-    console.log("t1:" + this.state.t1PtsValid + "--- t2:" + this.state.t2PtsValid)
     this.setState({resultFormValid: this.state.t1PtsValid && this.state.t2PtsValid});
   }
 
@@ -125,7 +143,7 @@ class App extends Component {
     }
   }
 
-  setByeValues = () => {
+  setByeValues(){
     this.setState({
       t1Pts: 0,
       t2Pts: 0,
@@ -136,31 +154,113 @@ class App extends Component {
     })
   }
 
-  resetByeValues = () => {
+  resetByeValues() {
     this.setState({
       t1Pts: '',
       t2Pts: '',
-      selectRes: 'WON',
+      selectRes: 'DEF',
       resultFormValid: false
     })
   }
 
   updatePlayedRes = () => {
-    this.setState({ teamGamePlayed: 1 })
+    this.setState({ teamGamePlayed: 1 });
   }
 
   updateResultsDB = () => {
     const formData = {
       rt1: this.state.t1Pts,
       res: this.state.selectRes,
-      rt2: this.state.t1Pts,
+      rt2: this.state.t2Pts,
       gmPlayed: this.state.teamGamePlayed,
       roundID: this.state.items.latestRound[0].roundID
     }
+    alert(JSON.stringify(formData));
+    //debugger;
+    fetch('//thebsharps/services/update-results/', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData)
+    }).then((response) => response.json())
+      .then((responseJson) => {
+      // Showing response message coming from server updating records.
+      alert(responseJson);
+    }).catch((error) => {
+      alert(JSON.stringify(formData));
+      alert(error);
+    });
+  }
+
+  handlePlayerInputChange(event) {
+    const target = event.target;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
+
+    console.log(name);
+    this.setState({[name]: value},
+    () => { this.validatePlayerField(name, value) });
+  }
+
+  handleCheckboxDNP = (event) =>  {
+    console.log(event.target);
+    const target = event.target;
+    const value = target.checked;
+    const name = target.name;
+    const pid = target.attributes.getNamedItem('data-pid').value;
+    console.log(pid);
+
+    if(value) {
+      this.setPlayerDNP(pid);
+    } else {
+      this.resetPlayerDNP(pid);
+    }
+  }
+
+  setPlayerDNP(pid) {
+    const players = this.state.players;
+    players[pid-1]["formControlsTextPts" + pid] = 0;
+    players[pid-1]["formControlsTextFTA" + pid] = 0;
+    players[pid-1]["formControlsTextFTM" + pid] = 0;
+    players[pid-1]["formControlsText3pt" + pid] = 0;
+    players[pid-1]["formControlsTextFls" + pid] = 0;
+    players[pid-1].played = 0;
+    players[pid-1].dnp = true;
+
+    this.forceUpdate();
+  }
+
+  resetPlayerDNP(pid) {
+    const players = this.state.players;
+    players[pid-1]["formControlsTextPts" + pid] = '';
+    players[pid-1]["formControlsTextFTA" + pid] = '';
+    players[pid-1]["formControlsTextFTM" + pid] = '';
+    players[pid-1]["formControlsText3pt" + pid] = '';
+    players[pid-1]["formControlsTextFls" + pid] = '';
+    players[pid-1].played = 1;
+    players[pid-1].dnp = false;
+
+    this.forceUpdate();
+  }
+
+  validatePlayerField(fieldName, value) {
+    
+    this[fieldName + "Valid"] = (value.length > 0 && !/\D/.test(value)) ? true : false;
+
+    console.log(fieldName  + " is valid:" + this[fieldName + "Valid"]);
+
+    // this.setState({[fieldName + "Valid"]: this[fieldName + "Valid"],
+    //               }, this.validateForm);
+  }
+
+  validateForm() {
+    this.setState({resultFormValid: this.state.t1PtsValid && this.state.t2PtsValid});
   }
 
   render() {
-    const { error, isLoaded, items, t1Pts, t2Pts, byeIsChecked, resultOptions, selectRes, resultFormValid, progByCheck} = this.state;
+    const { error, isLoaded, items, t1Pts, t2Pts, byeIsChecked, resultOptions, selectRes, resultFormValid, progByCheck, dnpIsChecked, players, playersFormValid} = this.state;
     if (error) {
       return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
@@ -173,6 +273,95 @@ class App extends Component {
               <PageHeader>
                 <Image src="//thebsharps/static/img/logo-star.png" />Stat Man<small> The B-Sharps Basketball Club.</small>
               </PageHeader>
+              <h2>Player Stats</h2>
+              <Form>
+                <Table striped bordered condensed hover>
+                  <thead>
+                    <tr>
+                      <th>Round No.</th>
+                      <th>Round ID</th>
+                      <th>Player ID</th>
+                      <th>Player Name</th>
+                      <th>Points</th>
+                      <th>FTA</th>
+                      <th>FTM</th>
+                      <th>3PT</th>
+                      <th>Fouls</th>
+                      <th>Season</th>
+                      <th>Final</th>
+                      <th>Venue</th>
+                      <th>Played</th>
+                      <th>DNP</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.players.map(item => (
+                      <tr key={item.PID}>
+                        <td>{items.latestRound[0].roundName} ({items.prevRound[0].Round + 1})</td>
+                        <td>{items.latestRound[0].roundID}</td>
+                        <td>{item.PID}</td>
+                        <td>{item.PName}</td>
+                        <td>
+                           <FieldGroup
+                              name={"formControlsTextPts" + item.PID}
+                              type="text"
+                              value={players[item.PID -1]["formControlsTextPts" + item.PID]}
+                              disabled={players[item.PID -1].dnp}
+                              onChange={this.handlePlayerInputChange}
+                            />
+                        </td>
+                        <td>
+                           <FieldGroup
+                              name={"formControlsTextFTA" + item.PID}
+                              type="text"
+                              value={players[item.PID -1]["formControlsTextFTA" + item.PID]}
+                              disabled={players[item.PID -1].dnp}
+                              onChange={this.handlePlayerInputChange}
+                            />
+                        </td>
+                        <td>
+                           <FieldGroup
+                              name={"formControlsTextFTM" + item.PID}
+                              type="text"
+                              value={players[item.PID -1]["formControlsTextFTM" + item.PID]}
+                              disabled={players[item.PID -1].dnp}
+                              onChange={this.handlePlayerInputChange}
+                            />
+                        </td>
+                        <td>
+                           <FieldGroup
+                              name={"formControlsText3pt" + item.PID}
+                              type="text"
+                              value={players[item.PID -1]["formControlsText3pt" + item.PID]}
+                              disabled={players[item.PID -1].dnp}
+                              onChange={this.handlePlayerInputChange}
+                            />
+                        </td>
+                        <td>
+                           <FieldGroup
+                              name={"formControlsTextFls" + item.PID}
+                              type="text"
+                              value={players[item.PID -1]["formControlsTextFls" + item.PID]}
+                              disabled={players[item.PID -1].dnp}
+                              onChange={this.handlePlayerInputChange}
+                            />
+                        </td>
+                        <td>{items.latestRound[0].seasonID}</td>
+                        <td>{items.latestRound[0].final}</td>
+                        <td>{items.latestRound[0].venue}</td>
+                        <td>
+                          <span>{players[item.PID -1].played}</span>
+                        </td>
+                        <td>
+                          <Checkbox name={"checkDNP" + item.PID} data-pid={item.PID} onChange={this.handleCheckboxDNP}></Checkbox>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+                <Button type="submit" disabled={!playersFormValid}>Submit Player Stats</Button>
+              </Form>
+              <h2>Results</h2>
               <Form onSubmit={this.updateResultsDB}>
                 <Table striped bordered condensed hover>
                   <thead>
@@ -205,9 +394,9 @@ class App extends Component {
                       </td>
                       <td>
                         <FormGroup controlId="formControlsSelectResult">
-                          <FormControl componentClass="select" value={selectRes} name="selectRes" onChange={this.handleInputChange}>
+                          <FormControl componentClass="select" name="selectRes" value={selectRes} onChange={this.handleInputChange}>
                             {resultOptions.map(item => (
-                              <option key={item.key} value={item.val}>{item.disp}</option>
+                              <option key={item.key} value={item.val}>{item.val}</option>
                             ))}
                           </FormControl>
                         </FormGroup>
@@ -226,78 +415,6 @@ class App extends Component {
                   </tbody>
                 </Table>
                 <Button type="submit" disabled={!resultFormValid}>Submit Game Score</Button>
-              </Form>
-              <Form>
-                <Table striped bordered condensed hover>
-                  <thead>
-                    <tr>
-                      <th>Round No.</th>
-                      <th>Round ID</th>
-                      <th>Player ID</th>
-                      <th>Player Name</th>
-                      <th>Points</th>
-                      <th>FTA</th>
-                      <th>FTM</th>
-                      <th>3PT</th>
-                      <th>Fouls</th>
-                      <th>Season</th>
-                      <th>Final</th>
-                      <th>Venue</th>
-                      <th>Played</th>
-                      <th>DNP</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.players.map(item => (
-                      <tr key={item.PID}>
-                        <td>{items.latestRound[0].roundName} ({items.prevRound[0].Round + 1})</td>
-                        <td>{items.latestRound[0].roundID}</td>
-                        <td>{item.PID}</td>
-                        <td>{item.PName}</td>
-                        <td>
-                           <FieldGroup
-                              id="formControlsTextPoints"
-                              type="text"
-                            />
-                        </td>
-                        <td>
-                           <FieldGroup
-                              id="formControlsTextFTA"
-                              type="text"
-                            />
-                        </td>
-                        <td>
-                           <FieldGroup
-                              id="formControlsTextFTM"
-                              type="text"
-                            />
-                        </td>
-                        <td>
-                           <FieldGroup
-                              id="formControlsText3pt"
-                              type="text"
-                            />
-                        </td>
-                        <td>
-                           <FieldGroup
-                              id="formControlsTextFouls"
-                              type="text"
-                            />
-                        </td>
-                        <td>{items.latestRound[0].seasonID}</td>
-                        <td>{items.latestRound[0].final}</td>
-                        <td>{items.latestRound[0].venue}</td>
-                        <td>
-                          <span>1</span>
-                        </td>
-                        <td>
-                          <Checkbox id="checkDNP{item.PID}"></Checkbox>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-                <Button type="submit">Submit Player Stats</Button>
               </Form>
               </Col>
             </Row>
