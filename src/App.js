@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import logo from './logo.svg';
 import './App.css';
-import update from 'immutability-helper';
-import { Grid, Row, Col, PageHeader, Form, Table, Checkbox, FormGroup, ControlLabel, FormControl, HelpBlock, Image, Button, Alert} from 'react-bootstrap';
+import { Grid, Row, Col, PageHeader, Form, Table, Checkbox, FormGroup, FormControl, HelpBlock, Image, Button} from 'react-bootstrap';
 
 function FieldGroup({ id, label, help, ...props }) {
   return (
@@ -52,7 +50,7 @@ class App extends Component {
     let playersState = [];
     for(var i=1; i<=noOfPlayers; i++) {
       playersState.push(
-        {["formControlsTextPts" + i]: '', ["formControlsTextFTA" + i]: '', ["formControlsTextFTM" + i]: '', ["formControlsText3pt" + i]: '', ["formControlsTextFls" + i]: '', played: 1, dnp: false, valid: false, invalidClass: ''}
+        {["formControlsTextPts" + i]: '', ["formControlsTextFTA" + i]: '', ["formControlsTextFTM" + i]: '', ["formControlsText3pt" + i]: '', ["formControlsTextFls" + i]: '', played: 1, dnp: false, ["formControlsTextPts" + i + "InValidClass"]: false, ["formControlsTextFTA" + i + "InValidClass"]: false, ["formControlsTextFTM" + i + "InValidClass"]: false, ["formControlsText3pt" + i + "InValidClass"]: false, ["formControlsTextFls" + i + "InValidClass"]: false}
       );
     }
     console.log(playersState);
@@ -79,6 +77,11 @@ class App extends Component {
     )
   }
 
+  /**
+    * Handle Input change for Results form Inpute
+    * @method handleInputChange
+    * @param {obj} event - event that was triggered
+    */
   handleInputChange(event) {
     const target = event.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
@@ -105,6 +108,12 @@ class App extends Component {
     }
   }
 
+  /**
+    * Validate fields for Results Form
+    * @method validateField
+    * @param {string} fieldName - name of field to validate
+    * @param {int} value - value input by user
+    */
   validateField(fieldName, value) {
     let fieldValidationErrors = this.state.resultFormErrors;
     let t1PtsValid = this.state.t1PtsValid;
@@ -124,26 +133,36 @@ class App extends Component {
                   }, this.validateForm);
   }
 
+  /**
+    * Validate Results Form
+    * @method validateForm
+    */
   validateForm() {
     this.setState({resultFormValid: this.state.t1PtsValid && this.state.t2PtsValid});
   }
 
+  /**
+    * Apply error class if field has error
+    * @method errorClass
+    * @param {obj} error - field to evaluate
+    */
   errorClass(error) {
     return(error.length === 0 ? '' : 'has-error');
   }
 
-
+  /**
+    * Event handling for BYE checkbox
+    * @method handleCheckboxBye
+    */
   handleCheckboxBye = () => {
-    this.setState({
-      byeIsChecked: !this.state.byeIsChecked
-    });
-    if(this.state.byeIsChecked) {
-      this.resetByeValues();
-    } else {
-      this.setByeValues();
-    }
+    this.setState({ byeIsChecked: !this.state.byeIsChecked });
+    this.state.byeIsChecked ? this.resetByeValues() : this.setByeValues();
   }
 
+  /**
+    * Set BYE values when selected
+    * @method setByeValues
+    */
   setByeValues(){
     this.setState({
       t1Pts: 0,
@@ -155,6 +174,10 @@ class App extends Component {
     })
   }
 
+  /**
+    * RESet BYE values when selected
+    * @method resetByeValues
+    */
   resetByeValues() {
     this.setState({
       t1Pts: '',
@@ -164,10 +187,18 @@ class App extends Component {
     })
   }
 
+  /**
+    * Update games played onBlur
+    * @method updatePlayedRes
+    */
   updatePlayedRes = () => {
     this.setState({ teamGamePlayed: 1 });
   }
 
+  /**
+    * Update the DB on submit
+    * @method updateResultsDB
+    */
   updateResultsDB = () => {
     const formData = {
       rt1: this.state.t1Pts,
@@ -176,8 +207,7 @@ class App extends Component {
       gmPlayed: this.state.teamGamePlayed,
       roundID: this.state.items.latestRound[0].roundID
     }
-    alert(JSON.stringify(formData));
-    //debugger;
+
     fetch('//thebsharps/services/update-results/', {
       method: 'POST',
       headers: {
@@ -190,11 +220,15 @@ class App extends Component {
       // Showing response message coming from server updating records.
       alert(responseJson);
     }).catch((error) => {
-      alert(JSON.stringify(formData));
       alert(error);
     });
   }
 
+  /**
+    * Event Handler for input change on player stats form
+    * @method handlePlayerInputChange
+    * @param {obj} event - event that was triggered
+    */
   handlePlayerInputChange(event) {
     const target = event.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
@@ -207,25 +241,28 @@ class App extends Component {
 
     this.setState({
       players,
-    },
-    () => { this.validatePlayerField(name, value, players, pid) });
+    }, () => { this.validatePlayerField(name, value, players, pid) });
   }
 
+  /**
+    * Event Handler for checking DNP for a given player
+    * @method handleCheckboxDNP
+    * @param {obj} event - event that was triggered
+    */
   handleCheckboxDNP = (event) =>  {
     console.log(event.target);
     const target = event.target;
     const value = target.checked;
-    const name = target.name;
     const pid = target.attributes.getNamedItem('data-pid').value;
     console.log(pid);
 
-    if(value) {
-      this.setPlayerDNP(pid);
-    } else {
-      this.resetPlayerDNP(pid);
-    }
+    value ? this.setPlayerDNP(pid) : this.resetPlayerDNP(pid);
   }
 
+  /**
+    * Set DNP value for player when selected
+    * @method setPlayerDNP
+    */
   setPlayerDNP(pid) {
     const players = this.state.players;
     const myPid = pid -1;
@@ -237,12 +274,20 @@ class App extends Component {
     players[myPid]["formControlsTextFls" + pid] = 0;
     players[myPid].played = 0;
     players[myPid].dnp = true;
-    players[myPid].invalid = '';
+    players[myPid]["formControlsTextPts" + pid + "InValidClass"] = false;
+    players[myPid]["formControlsTextFTA" + pid + "InValidClass"] = false;
+    players[myPid]["formControlsTextFTM" + pid + "InValidClass"] = false;
+    players[myPid]["formControlsText3pt" + pid + "InValidClass"] = false;
+    players[myPid]["formControlsTextFls" + pid + "InValidClass"] = false;
 
     this.forceUpdate();
     this.validatePlayerForm();
   }
 
+  /**
+    * RESet DNP value for player when selected
+    * @method resetPlayerDNP
+    */
   resetPlayerDNP(pid) {
     const players = this.state.players;
     const myPid = pid -1;
@@ -254,27 +299,46 @@ class App extends Component {
     players[myPid]["formControlsTextFls" + pid] = '';
     players[myPid].played = 1;
     players[myPid].dnp = false;
-    players[myPid].invalid = '';
+    players[myPid]["formControlsTextPts" + pid + "InValidClass"] = true;
+    players[myPid]["formControlsTextFTA" + pid + "InValidClass"] = true;
+    players[myPid]["formControlsTextFTM" + pid + "InValidClass"] = true;
+    players[myPid]["formControlsText3pt" + pid + "InValidClass"] = true;
+    players[myPid]["formControlsTextFls" + pid + "InValidClass"] = true;
 
     this.forceUpdate();
     this.setState({playersFormValid: false});
   }
 
-  validatePlayerField(fieldName, value, players, pid) {
-    
-    // TODO: remove this per row validation, add to player form field validtion below, which checkes each
-    // field already
-    const valid = (value.length > 0 && !/\D/.test(value)) ? true : false;
+  /**
+    * Apply error class if field has error
+    * @method errorClassPlayers
+    * @param {int} value - field to evaluate
+    */
+  errorClassPlayers(value) {
+    return(!value ? '' : 'has-error');
+  }
 
-    console.log(fieldName + " is invalid: " + valid);
-    players[pid].valid = valid;
-    players[pid].invalidClass = (valid) ? '' : ' is invalid';
+  /**
+    * Validate fields for Player Stats Form
+    * @method validatePlayerField
+    * @param {string} fieldName - name of field to validate
+    * @param {int} value - value input by user
+    * @param {array} players - collection of players
+    * @param {int} pid - player unique ID
+    */
+  validatePlayerField(fieldName, value, players, pid) {
+    const invalid = (value.length > 0 && !/\D/.test(value)) ? false : true;
+    players[pid][fieldName + "InValidClass"] = invalid;
 
     this.setState({
       players,
     }, this.validatePlayerForm);
   }
 
+  /**
+    * Validate entire form Player Stats
+    * @method validatePlayerForm
+    */
   validatePlayerForm() {  
     const noOfPlayers = this.state.items.players;
     const players = this.state.players;
@@ -287,7 +351,6 @@ class App extends Component {
         if (players[noOfPlayers[i].PID -1].hasOwnProperty(key) && key.indexOf('form') !== -1 && players[noOfPlayers[i].PID -1]) {
           if(players[noOfPlayers[i].PID -1][key] === '') {
             // check if empty add to invalid total
-            console.log(players[noOfPlayers[i].PID -1][key]);
             currentInvalidTotal++;
             break
           } else if (/\D/.test(players[noOfPlayers[i].PID -1][key])) {
@@ -305,7 +368,7 @@ class App extends Component {
   }
 
   render() {
-    const { error, isLoaded, items, t1Pts, t2Pts, byeIsChecked, resultOptions, selectRes, resultFormValid, progByCheck, dnpIsChecked, players, playersFormValid} = this.state;
+    const { error, isLoaded, items, t1Pts, t2Pts, byeIsChecked, resultOptions, selectRes, resultFormValid, players, playersFormValid} = this.state;
     if (error) {
       return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
@@ -341,12 +404,12 @@ class App extends Component {
                   </thead>
                   <tbody>
                     {items.players.map(item => (
-                      <tr key={item.PID} className={this.errorClass(players[item.PID -1].invalidClass)}>
+                      <tr key={item.PID}>
                         <td>{items.latestRound[0].roundName} ({items.prevRound[0].Round + 1})</td>
                         <td>{items.latestRound[0].roundID}</td>
                         <td>{item.PID}</td>
                         <td>{item.PName}</td>
-                        <td>
+                        <td className={this.errorClassPlayers(players[item.PID -1]["formControlsTextPts" + item.PID + "InValidClass"])}>
                            <FieldGroup
                               name={"formControlsTextPts" + item.PID}
                               type="text"
@@ -356,7 +419,7 @@ class App extends Component {
                               data-pid={item.PID}
                             />
                         </td>
-                        <td>
+                        <td className={this.errorClassPlayers(players[item.PID -1]["formControlsTextFTA" + item.PID + "InValidClass"])}>
                            <FieldGroup
                               name={"formControlsTextFTA" + item.PID}
                               type="text"
@@ -366,7 +429,7 @@ class App extends Component {
                               data-pid={item.PID}
                             />
                         </td>
-                        <td>
+                        <td className={this.errorClassPlayers(players[item.PID -1]["formControlsTextFTM" + item.PID + "InValidClass"])}>
                            <FieldGroup
                               name={"formControlsTextFTM" + item.PID}
                               type="text"
@@ -376,7 +439,7 @@ class App extends Component {
                               data-pid={item.PID}
                             />
                         </td>
-                        <td>
+                        <td className={this.errorClassPlayers(players[item.PID -1]["formControlsText3pt" + item.PID + "InValidClass"])}>
                            <FieldGroup
                               name={"formControlsText3pt" + item.PID}
                               type="text"
@@ -386,7 +449,7 @@ class App extends Component {
                               data-pid={item.PID}
                             />
                         </td>
-                        <td>
+                        <td className={this.errorClassPlayers(players[item.PID -1]["formControlsTextFls" + item.PID + "InValidClass"])}>
                            <FieldGroup
                               name={"formControlsTextFls" + item.PID}
                               type="text"
