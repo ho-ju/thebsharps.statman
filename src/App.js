@@ -53,11 +53,8 @@ class App extends Component {
         {["formControlsTextPts" + i]: '', ["formControlsTextFTA" + i]: '', ["formControlsTextFTM" + i]: '', ["formControlsText3pt" + i]: '', ["formControlsTextFls" + i]: '', played: 1, dnp: false, ["formControlsTextPts" + i + "InValidClass"]: false, ["formControlsTextFTA" + i + "InValidClass"]: false, ["formControlsTextFTM" + i + "InValidClass"]: false, ["formControlsText3pt" + i + "InValidClass"]: false, ["formControlsTextFls" + i + "InValidClass"]: false}
       );
     }
-    console.log(playersState);
 
-    this.setState({
-      players: playersState
-    })
+    this.setState({ players: playersState });
 
     fetch('//thebsharps/services/stat-man/')
       .then(res => res.json())
@@ -237,7 +234,6 @@ class App extends Component {
     const pid = target.attributes.getNamedItem('data-pid').value -1;
 
     players[pid][name] = value;
-    console.log(pid + "--" + players[pid][name])
 
     this.setState({
       players,
@@ -254,7 +250,6 @@ class App extends Component {
     const target = event.target;
     const value = target.checked;
     const pid = target.attributes.getNamedItem('data-pid').value;
-    console.log(pid);
 
     value ? this.setPlayerDNP(pid) : this.resetPlayerDNP(pid);
   }
@@ -348,7 +343,7 @@ class App extends Component {
     // Loop through number of players returned in data, then by PID within that loop
     for(var i=0; i < noOfPlayers.length; i++) {
       for(var key in players[noOfPlayers[i].PID -1]) {
-        if (players[noOfPlayers[i].PID -1].hasOwnProperty(key) && key.indexOf('form') !== -1 && players[noOfPlayers[i].PID -1]) {
+        if (players[noOfPlayers[i].PID -1].hasOwnProperty(key) && key.indexOf('form') !== -1 && key.indexOf('InValidClass') === -1 && players[noOfPlayers[i].PID -1]) {
           if(players[noOfPlayers[i].PID -1][key] === '') {
             // check if empty add to invalid total
             currentInvalidTotal++;
@@ -367,6 +362,29 @@ class App extends Component {
     this.setState({playersFormValid: validForm});
   }
 
+  insertStatsDB = () => {
+    const formData = {
+      players: this.state.players
+    }
+
+    alert(formData);
+
+    // fetch('//thebsharps/services/insert-stats/', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Accept': 'application/json',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(formData)
+    // }).then((response) => response.json())
+    //   .then((responseJson) => {
+    //   // Showing response message coming from server updating records.
+    //   alert(responseJson);
+    // }).catch((error) => {
+    //   alert(error);
+    // });
+  }
+
   render() {
     const { error, isLoaded, items, t1Pts, t2Pts, byeIsChecked, resultOptions, selectRes, resultFormValid, players, playersFormValid} = this.state;
     if (error) {
@@ -382,7 +400,7 @@ class App extends Component {
                 <Image src="//thebsharps/static/img/logo-star.png" />Stat Man<small> The B-Sharps Basketball Club.</small>
               </PageHeader>
               <h2>Player Stats</h2>
-              <Form>
+              <Form onSubmit={this.insertStatsDB}>
                 <Table striped bordered condensed hover>
                   <thead>
                     <tr>
