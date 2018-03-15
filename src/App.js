@@ -50,7 +50,7 @@ class App extends Component {
     let playersState = [];
     for(var i=1; i<=noOfPlayers; i++) {
       playersState.push(
-        {["formControlsTextPts" + i]: '', ["formControlsTextFTA" + i]: '', ["formControlsTextFTM" + i]: '', ["formControlsText3pt" + i]: '', ["formControlsTextFls" + i]: '', played: 1, dnp: false, ["formControlsTextPts" + i + "InValidClass"]: false, ["formControlsTextFTA" + i + "InValidClass"]: false, ["formControlsTextFTM" + i + "InValidClass"]: false, ["formControlsText3pt" + i + "InValidClass"]: false, ["formControlsTextFls" + i + "InValidClass"]: false}
+        {pid: i, ["formControlsTextPts" + i]: '', ["formControlsTextFTA" + i]: '', ["formControlsTextFTM" + i]: '', ["formControlsText3pt" + i]: '', ["formControlsTextFls" + i]: '', played: 0, dnp: false, ["formControlsTextPts" + i + "InValidClass"]: false, ["formControlsTextFTA" + i + "InValidClass"]: false, ["formControlsTextFTM" + i + "InValidClass"]: false, ["formControlsText3pt" + i + "InValidClass"]: false, ["formControlsTextFls" + i + "InValidClass"]: false}
       );
     }
 
@@ -234,6 +234,7 @@ class App extends Component {
     const pid = target.attributes.getNamedItem('data-pid').value -1;
 
     players[pid][name] = value;
+    players[pid].played = 1; // update game played once text is entered in row
 
     this.setState({
       players,
@@ -364,25 +365,30 @@ class App extends Component {
 
   insertStatsDB = () => {
     const formData = {
+      round: this.state.items.prevRound[0].round + 1,
+      roundID: this.state.items.latestRound[0].roundID,
+      seasonID: this.state.items.latestRound[0].seasonID,
+      final: this.state.items.latestRound[0].final,
+      comp: this.state.items.latestRound[0].comp, 
       players: this.state.players
     }
 
-    alert(formData);
+    console.log(JSON.stringify(formData));
 
-    // fetch('//thebsharps/services/insert-stats/', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Accept': 'application/json',
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(formData)
-    // }).then((response) => response.json())
-    //   .then((responseJson) => {
-    //   // Showing response message coming from server updating records.
-    //   alert(responseJson);
-    // }).catch((error) => {
-    //   alert(error);
-    // });
+    fetch('//thebsharps/services/insert-stats/', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData)
+    }).then((response) => response.json())
+      .then((responseJson) => {
+      // Showing response message coming from server updating records.
+      alert(responseJson);
+    }).catch((error) => {
+      alert(error);
+    });
   }
 
   render() {
@@ -423,7 +429,7 @@ class App extends Component {
                   <tbody>
                     {items.players.map(item => (
                       <tr key={item.PID}>
-                        <td>{items.latestRound[0].roundName} ({items.prevRound[0].Round + 1})</td>
+                        <td>{items.latestRound[0].roundName} ({items.prevRound[0].round + 1})</td>
                         <td>{items.latestRound[0].roundID}</td>
                         <td>{item.PID}</td>
                         <td>{item.PName}</td>
@@ -479,7 +485,7 @@ class App extends Component {
                         </td>
                         <td>{items.latestRound[0].seasonID}</td>
                         <td>{items.latestRound[0].final}</td>
-                        <td>{items.latestRound[0].venue}</td>
+                        <td>{items.latestRound[0].comp}</td>
                         <td>
                           <span>{players[item.PID -1].played}</span>
                         </td>
@@ -510,7 +516,7 @@ class App extends Component {
                   </thead>
                   <tbody>
                     <tr>
-                      <td>{items.latestRound[0].roundName} ({items.prevRound[0].Round + 1})</td>
+                      <td>{items.latestRound[0].roundName} ({items.prevRound[0].round + 1})</td>
                       <td>{items.latestRound[0].roundID}</td>
                       <td>{items.latestRound[0].t1}</td>
                       <td className={this.errorClass(this.state.resultFormErrors.t1Pts)}>
