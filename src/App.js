@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
-import './App.css';
 import { Grid, Row, Col, PageHeader, Form, Table, Checkbox, FormGroup, FormControl, HelpBlock, Image, Button} from 'react-bootstrap';
+import './App.css';
 
 function FieldGroup({ id, label, help, ...props }) {
   return (
@@ -402,10 +402,19 @@ class App extends Component {
         <Grid>
           <Row className="show-grid">
             <Col xs={12} md={12}>
-              <PageHeader>
-                <Image src="//thebsharps/static/img/logo-star.png" />Stat Man<small> The B-Sharps Basketball Club.</small>
-              </PageHeader>
-              <h2>Player Stats</h2>
+              <div className="logo-container">
+                  <a href="/" className="logo main">
+                  <h4>Basketball club est. 2004</h4>
+                  <h3><span className="text">The B</span><span className="icon"></span><span className="text last">Sharps</span></h3>
+                </a>
+              </div>
+              <div className="hr clearfix"></div>
+              <div className="crumbs clearfix">
+                <ul>
+                  <li className="title"><h1>The Team</h1></li>
+                </ul>
+              </div>
+              <h3 className="table-title">Player Stats</h3>
               <Form onSubmit={this.insertStatsDB}>
                 <Table striped bordered condensed hover>
                   <thead>
@@ -498,7 +507,7 @@ class App extends Component {
                 </Table>
                 <Button type="submit" disabled={!playersFormValid}>Submit Player Stats</Button>
               </Form>
-              <h2>Results</h2>
+              <h3 className="table-title">Results</h3>
               <Form onSubmit={this.updateResultsDB}>
                 <Table striped bordered condensed hover>
                   <thead>

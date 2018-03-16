@@ -1,0 +1,293 @@
+// Imports
+@import url('//fonts.googleapis.com/css?family=Oswald:400,700,300|Roboto:400,300italic,300,100italic,100,400italic,500,700,500italic,700italic,900,900italicOpen+Sans:400,700,800italic,800,700italic,600italic,400italic|Lato:400,700,900,900italic,700italic,400italic');
+
+// Vars
+$white: #fff;
+$blue: #003366;
+$transparentBlue: rgba(0,51,102,0.2);
+$transparentCharcoalLight: rgba(51, 51, 51, 0.06);
+$transparentCharcoalDark: rgba(51, 51, 51, 0.65);
+$transparentCharcoalDarkHov: rgba(51, 51, 51, 0.8);
+$transparentRed: rgba(201, 0, 0, 0.4);
+$charcoal: #333;
+$lightGrey: #ccc;
+$lightGreyBg: #dedede;
+$green: #339933;
+$red: #C90000;
+$orange: #F2B600;
+
+@mixin basicAnimateAll($duration: .25s){
+  -webkit-transition: all $duration ease;
+    -moz-transition: all $duration ease;
+    -o-transition: all $duration ease;
+    -ms-transition: all $duration ease
+}
+
+@mixin lessenOpacity {
+  opacity: 0.85;
+}
+
+@mixin oswaldFont() {
+  font-family: 'Oswald', sans-serif!important;
+}
+@mixin robotFont(){
+  font-family: 'Roboto', sans-serif!important;
+}
+@mixin openSansFont(){
+  font-family: 'Open Sans', sans-serif!important;
+}
+@mixin latoFont(){
+  font-family: 'Lato', sans-serif!important;
+}
+
+@mixin noWKM() {
+  -webkit-margin-before:0em;
+  -webkit-margin-after:0em;
+  -webkit-margin-start:0em;
+  -webkit-margin-end:0em;
+  margin: 0!important;
+  padding: 0!important;
+}
+
+/******************************************************************
+
+02 - Responsive Mixins
+
+/*****************************************************************/
+
+$highdensity:       unquote"only screen and (-webkit-min-device-pixel-ratio: 1.5)",
+                    unquote"only screen and (min--moz-device-pixel-ratio: 1.5)",
+                    unquote"only screen and (-o-min-device-pixel-ratio: 3/2)",
+                    unquote"only screen and (min-device-pixel-ratio: 1.5)";
+$mobile:            unquote"only screen and (max-width: 768px)";
+$mobileResponsive:  unquote"only screen and (max-width: 420px)";
+$tablet:            unquote"only screen and (min-width: 768px) and (max-width: 949px)";
+$desktop:           unquote"only screen and (min-width: 950px) and (max-width: 1128px)";
+$desktop-xl:        unquote"only screen and (min-width: 1129px)";
+
+
+/***********************
+*
+* Common
+*
+************************/
+a {
+  color: $blue;
+    text-decoration: none;
+  @includ basicAnimateAll(.25s);
+  &:visited { color: $blue; }
+  &:hover {
+    text-decoration: underline;
+    color: darken($blue, 20%);
+        img { @include lessenOpacity(); }
+  }
+  &.no-underline {
+    &:hover { text-decoration: none; }
+  }
+    &:focus { text-decoration: none; }
+    img {
+        @include basicAnimateAll();
+    }
+}
+
+h1 { @include oswaldFont(); font-size: 32px; text-transform: uppercase; letter-spacing: 0.2em; color: $blue!important; @include noWKM; margin-bottom: 0.5em!important; }
+h2 { @include oswaldFont(); font-size: 32px; text-transform: uppercase; letter-spacing: 0.1em; color: $blue!important; @include noWKM; margin-bottom: 0.5em!important; }
+h3 { @include oswaldFont(); font-size: 16px; text-transform: uppercase; letter-spacing: 0.1em; color: $blue!important; @include noWKM; margin-bottom: 0.5em!important; }
+h4 { @include oswaldFont(); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: $blue!important; @include noWKM; margin-bottom: 0.5em!important; }
+
+
+body {
+    background: url('//thebsharps/static/img/bg-home-03.jpg') top right no-repeat fixed; font-size: 11px; color: #333;
+    // @media #{$mobile} {
+    //     background-size: 100%;
+    // }
+}
+
+.logo {
+    padding-top: 35px;
+    display: block; margin-bottom: 30px;
+    width: 555px;
+
+    @media #{$mobile} {
+        width: 100%;
+    }
+
+    h3 {
+        font-size: 64px;
+        letter-spacing: 0.2em;
+        .text {
+            display: table-cell;
+            vertical-align: middle;
+            text-shadow: 0px 7px 11px rgba(0,0,0,0.3);
+            background: -webkit-linear-gradient($blue 66%, #000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            @include basicAnimateAll(.5s);
+            &.last {
+                padding-left: 10px;
+                @media #{$mobile} {
+                    padding-left: 5px;
+                }
+            }
+        }
+        .icon {
+            display: table-cell;
+            vertical-align: middle;
+            background: url('//thebsharps/static/img/logo-star.png') center left no-repeat;
+            background-size: contain;;
+            width: 50px;
+            @media #{$mobile} {
+                width: 18px;
+            }
+        }
+
+    }
+    h4 {
+        font-size: 10px;
+        text-align: right;
+        margin-bottom: 0;
+        margin-right: 20px;
+    }
+    &:hover {
+        text-decoration: none;
+        h4, h3 {
+            text-decoration: none;
+            span.text {
+                text-shadow: 0px 7px 11px rgba(0,0,0,0);
+            }
+        }
+    }
+
+    &.med {
+        width: 290px;
+        h3 {
+            font-size: 32px;
+            @media #{$mobile} { font-size: 22px; }
+            .last {
+                padding-left: 7px;
+            }
+        }
+        h4 {
+            font-size: 8px;
+            @media #{$mobile} {
+                font-size: 6px;
+                margin-left: 92px;
+                margin-right: 0;
+                text-align: left;
+            }
+        }
+        .icon {
+            width: 25px;
+            @media #{$mobile} {
+                width: 18px;
+            }
+        }
+    }
+
+    &.main {
+        @media #{$mobile} {
+            h3 {
+                font-size: 22px;
+                text-align: right;
+                float: right;
+                margin-bottom: 0;
+            }
+
+            h4 {
+                font-size: 6px;
+                right: 0;
+                margin-right: 5px;
+            }
+        }
+    }
+}
+
+.hr {
+  border-bottom: 1px dotted $lightGrey;
+  display: block;
+  margin: 15px 0;
+  &.faded { opacity: 0.5; }
+}
+
+/***********************
+*
+* Breadcrumbs
+*
+************************/
+.crumbs {
+  margin-bottom: 15px;
+    @media #{$mobile} {
+        display: block;
+        width: 100%;
+    }
+  ul {
+    margin: 0;
+    padding: 0;
+    float: right;
+      @media #{$mobile} {
+          float: none;
+      }
+    li {
+      list-style: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      float: left;
+      padding-top: 19px;
+      @include oswaldFont();
+          a {
+              @include oswaldFont();
+              @include basicAnimateAll();
+              &:hover { text-decoration: none; }
+          }
+          @media #{$mobile} {
+              display: none;
+          }
+      &.title {
+              padding: 0;
+              @media #{$mobile} {
+                  display: block;
+              }
+          }
+    }
+  }
+}
+
+/***********************
+*
+* Breadcrumbs
+*
+************************/
+
+.table-title {
+  color: $charcoal!important;
+  margin-bottom: 20px!important;
+}
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
