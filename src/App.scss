@@ -261,6 +261,109 @@ body {
 .table-title {
   color: $charcoal!important;
   margin-bottom: 20px!important;
+
+  span {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    &.dots { margin: 0 10px; }
+  }
+}
+
+
+/***********************
+*
+* Table
+*
+************************/
+table.table {
+
+  .tleft { text-align: left!important; }
+  .tright { text-align: right!important; }
+  .tcenter { text-align: center!important; }
+  .form-group { margin-bottom: 0; }
+  .checkbox {
+    margin: 0;
+    label { 
+      &:hover { cursor: pointer!important; }
+    }
+    input[type=checkbox] { margin-left: -16px; }
+  }
+
+  thead {
+    tr {
+      background-color: $transparentBlue;
+      th {
+        text-align: center;
+        font-size: 11px;
+        padding: 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        vertical-align: middle;
+        text-align: middle;
+        @include oswaldFont();
+
+        @media #{$mobile} {
+            padding: 10px 5px;
+            font-size: 10px;
+        }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      @include basicAnimateAll();
+      &:hover {
+        background: rgb(201, 0, 0);
+        background: $transparentRed!important;
+      }
+      td {
+        vertical-align: middle;
+        text-align: center;
+        font-size: 11px;
+        padding: 10px 10px;
+        letter-spacing: .1em;
+        @include latoFont();
+
+        input[type=text] {
+          font-size: 11px;
+          height: auto;
+          font-weight: bold;
+        }
+
+        &.input {
+          width: 85px;
+        }
+
+        &.round-no {
+          span { font-size: 9px;}
+        }
+        &.p-name {
+          span {
+            font-size: 10px;
+            font-weight: bold;
+          }
+        }
+
+        select {
+          font-size: 11px;
+          height: auto;
+        }
+      }
+    }
+  }
+}
+
+button[type=submit] {
+  text-align: center;
+  display: block;
+  margin: 0 auto 30px;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: $transparentCharcoalLight!important;
 }
 
 .App {

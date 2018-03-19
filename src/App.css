@@ -228,6 +228,91 @@ body {
 .table-title {
   color: #333 !important;
   margin-bottom: 20px !important; }
+  .table-title span {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .1em; }
+    .table-title span.dots {
+      margin: 0 10px; }
+
+/***********************
+*
+* Table
+*
+************************/
+table.table .tleft {
+  text-align: left !important; }
+
+table.table .tright {
+  text-align: right !important; }
+
+table.table .tcenter {
+  text-align: center !important; }
+
+table.table .form-group {
+  margin-bottom: 0; }
+
+table.table .checkbox {
+  margin: 0; }
+  table.table .checkbox label:hover {
+    cursor: pointer !important; }
+  table.table .checkbox input[type=checkbox] {
+    margin-left: -16px; }
+
+table.table thead tr {
+  background-color: rgba(0, 51, 102, 0.2); }
+  table.table thead tr th {
+    text-align: center;
+    font-size: 11px;
+    padding: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    vertical-align: middle;
+    text-align: middle;
+    font-family: "Oswald", sans-serif !important; }
+    @media unquote {
+      table.table thead tr th {
+        padding: 10px 5px;
+        font-size: 10px; } }
+
+table.table tbody tr {
+  -webkit-transition: all 0.25s ease;
+  -moz-transition: all 0.25s ease;
+  -o-transition: all 0.25s ease;
+  -ms-transition: all 0.25s ease; }
+  table.table tbody tr:hover {
+    background: #c90000;
+    background: rgba(201, 0, 0, 0.4) !important; }
+  table.table tbody tr td {
+    vertical-align: middle;
+    text-align: center;
+    font-size: 11px;
+    padding: 10px 10px;
+    letter-spacing: .1em;
+    font-family: "Lato", sans-serif !important; }
+    table.table tbody tr td input[type=text] {
+      font-size: 11px;
+      height: auto;
+      font-weight: bold; }
+    table.table tbody tr td.input {
+      width: 85px; }
+    table.table tbody tr td.round-no span {
+      font-size: 9px; }
+    table.table tbody tr td.p-name span {
+      font-size: 10px;
+      font-weight: bold; }
+    table.table tbody tr td select {
+      font-size: 11px;
+      height: auto; }
+
+button[type=submit] {
+  text-align: center;
+  display: block;
+  margin: 0 auto 30px; }
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: rgba(51, 51, 51, 0.06) !important; }
 
 .App {
   text-align: center; }

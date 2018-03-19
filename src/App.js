@@ -411,19 +411,19 @@ class App extends Component {
               <div className="hr clearfix"></div>
               <div className="crumbs clearfix">
                 <ul>
-                  <li className="title"><h1>The Team</h1></li>
+                  <li className="title"><h1>Stat Man</h1></li>
                 </ul>
               </div>
-              <h3 className="table-title">Player Stats</h3>
+              <h3 className="table-title">Player Stats <span><span className="dots">::</span><span>{items.latestRound[0].roundName}</span><span className="dots">::</span><span>{items.selLeague[0].leagueName} @ {items.selLeague[0].leagueAbbr}</span><span className="dots">::</span><span>{items.selSeason[0].seasonName}</span></span></h3>
               <Form onSubmit={this.insertStatsDB}>
-                <Table striped bordered condensed hover>
+                <Table striped bordered condensed hover className="playerStatsTable">
                   <thead>
                     <tr>
-                      <th>Round No.</th>
-                      <th>Round ID</th>
-                      <th>Player ID</th>
-                      <th>Player Name</th>
-                      <th>Points</th>
+                      <th>RND No.</th>
+                      <th>RND ID</th>
+                      <th>PLYR ID</th>
+                      <th>Name</th>
+                      <th className="input">Points</th>
                       <th>FTA</th>
                       <th>FTM</th>
                       <th>3PT</th>
@@ -438,11 +438,11 @@ class App extends Component {
                   <tbody>
                     {items.players.map(item => (
                       <tr key={item.PID}>
-                        <td>{items.latestRound[0].roundName} ({items.prevRound[0].round + 1})</td>
+                        <td className="tleft round-no">{items.latestRound[0].roundName} <span>({items.prevRound[0].round + 1})</span></td>
                         <td>{items.latestRound[0].roundID}</td>
                         <td>{item.PID}</td>
-                        <td>{item.PName}</td>
-                        <td className={this.errorClassPlayers(players[item.PID -1]["formControlsTextPts" + item.PID + "InValidClass"])}>
+                        <td className="tleft p-name"><span>#{item.pno}.</span> {item.PName}</td>
+                        <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextPts" + item.PID + "InValidClass"])}>
                            <FieldGroup
                               name={"formControlsTextPts" + item.PID}
                               type="text"
@@ -452,7 +452,7 @@ class App extends Component {
                               data-pid={item.PID}
                             />
                         </td>
-                        <td className={this.errorClassPlayers(players[item.PID -1]["formControlsTextFTA" + item.PID + "InValidClass"])}>
+                        <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextFTA" + item.PID + "InValidClass"])}>
                            <FieldGroup
                               name={"formControlsTextFTA" + item.PID}
                               type="text"
@@ -462,7 +462,7 @@ class App extends Component {
                               data-pid={item.PID}
                             />
                         </td>
-                        <td className={this.errorClassPlayers(players[item.PID -1]["formControlsTextFTM" + item.PID + "InValidClass"])}>
+                        <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextFTM" + item.PID + "InValidClass"])}>
                            <FieldGroup
                               name={"formControlsTextFTM" + item.PID}
                               type="text"
@@ -472,7 +472,7 @@ class App extends Component {
                               data-pid={item.PID}
                             />
                         </td>
-                        <td className={this.errorClassPlayers(players[item.PID -1]["formControlsText3pt" + item.PID + "InValidClass"])}>
+                        <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsText3pt" + item.PID + "InValidClass"])}>
                            <FieldGroup
                               name={"formControlsText3pt" + item.PID}
                               type="text"
@@ -482,7 +482,7 @@ class App extends Component {
                               data-pid={item.PID}
                             />
                         </td>
-                        <td className={this.errorClassPlayers(players[item.PID -1]["formControlsTextFls" + item.PID + "InValidClass"])}>
+                        <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextFls" + item.PID + "InValidClass"])}>
                            <FieldGroup
                               name={"formControlsTextFls" + item.PID}
                               type="text"
@@ -507,7 +507,7 @@ class App extends Component {
                 </Table>
                 <Button type="submit" disabled={!playersFormValid}>Submit Player Stats</Button>
               </Form>
-              <h3 className="table-title">Results</h3>
+              <h3 className="table-title">Results<span><span className="dots">::</span><span>{items.latestRound[0].roundName}</span><span className="dots">::</span><span>{items.selLeague[0].leagueName} @ {items.selLeague[0].leagueAbbr}</span><span className="dots">::</span><span>{items.selSeason[0].seasonName}</span></span></h3>
               <Form onSubmit={this.updateResultsDB}>
                 <Table striped bordered condensed hover>
                   <thead>
@@ -525,7 +525,7 @@ class App extends Component {
                   </thead>
                   <tbody>
                     <tr>
-                      <td>{items.latestRound[0].roundName} ({items.prevRound[0].round + 1})</td>
+                      <td className="tleft round-no">{items.latestRound[0].roundName} <span>({items.prevRound[0].round + 1})</span></td>
                       <td>{items.latestRound[0].roundID}</td>
                       <td>{items.latestRound[0].t1}</td>
                       <td className={this.errorClass(this.state.resultFormErrors.t1Pts)}>
