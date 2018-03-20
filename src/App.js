@@ -56,7 +56,10 @@ class App extends Component {
 
     this.setState({ players: playersState });
 
-    fetch('//thebsharps/services/stat-man/')
+    // LOCAL
+    // fetch('//thebsharps/services/stat-man/')
+    // PROD
+    fetch('/services/stat-man/')
       .then(res => res.json())
       .then(
         (result) => {
@@ -205,7 +208,10 @@ class App extends Component {
       roundID: this.state.items.latestRound[0].roundID
     }
 
-    fetch('//thebsharps/services/update-results/', {
+    // LOCAL
+    // fetch('//thebsharps/services/update-results/', {
+    // PROD
+    fetch('/services/update-results/', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -247,7 +253,7 @@ class App extends Component {
     * @param {obj} event - event that was triggered
     */
   handleCheckboxDNP = (event) =>  {
-    console.log(event.target);
+    // console.log(event.target);
     const target = event.target;
     const value = target.checked;
     const pid = target.attributes.getNamedItem('data-pid').value;
@@ -357,7 +363,7 @@ class App extends Component {
         }
       }
     }
-    console.log(currentInvalidTotal);
+    // console.log(currentInvalidTotal);
     // When there are no invalid fields, user can submit
     validForm = (currentInvalidTotal === 0) ? true : false;
     this.setState({playersFormValid: validForm});
@@ -373,9 +379,12 @@ class App extends Component {
       players: this.state.players
     }
 
-    console.log(JSON.stringify(formData));
+    // console.log(JSON.stringify(formData));
 
-    fetch('//thebsharps/services/insert-stats/', {
+    // LOCAL
+    // fetch('//thebsharps/services/insert-stats/', {
+    // PROD
+    fetch('/services/insert-stats/', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -397,174 +406,261 @@ class App extends Component {
       return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
       return <div>Loading...</div>;
-    } else {
+    } else if (items.latestRound.length) {
       return (
-        <Grid>
-          <Row className="show-grid">
-            <Col xs={12} md={12}>
-              <div className="logo-container">
-                  <a href="/" className="logo main">
-                  <h4>Basketball club est. 2004</h4>
-                  <h3><span className="text">The B</span><span className="icon"></span><span className="text last">Sharps</span></h3>
-                </a>
-              </div>
-              <div className="hr clearfix"></div>
-              <div className="crumbs clearfix">
-                <ul>
-                  <li className="title"><h1>Stat Man</h1></li>
-                </ul>
-              </div>
-              <h3 className="table-title">Player Stats <span><span className="dots">::</span><span>{items.latestRound[0].roundName}</span><span className="dots">::</span><span>{items.selLeague[0].leagueName} @ {items.selLeague[0].leagueAbbr}</span><span className="dots">::</span><span>{items.selSeason[0].seasonName}</span></span></h3>
-              <Form onSubmit={this.insertStatsDB}>
-                <Table striped bordered condensed hover className="playerStatsTable">
-                  <thead>
-                    <tr>
-                      <th>RND No.</th>
-                      <th>RND ID</th>
-                      <th>PLYR ID</th>
-                      <th>Name</th>
-                      <th className="input">Points</th>
-                      <th>FTA</th>
-                      <th>FTM</th>
-                      <th>3PT</th>
-                      <th>Fouls</th>
-                      <th>Season</th>
-                      <th>Final</th>
-                      <th>Venue</th>
-                      <th>Played</th>
-                      <th>DNP</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.players.map(item => (
-                      <tr key={item.PID}>
+        <div class="main-wrapper">
+          <div className="main-header">
+            <div className="logo-container">
+                <a href="/" className="logo main">
+                <h4>Basketball club est. 2004</h4>
+                <h3><span className="text">The B</span><span className="icon"></span><span className="text last">Sharps</span></h3>
+              </a>
+            </div>
+            <div className="hr clearfix"></div>
+          </div>
+          <Grid>
+            <Row className="show-grid">
+              <Col xs={12} md={12}>
+                <div className="crumbs clearfix">
+                  <ul>
+                    <li className="title"><h1>Stat Man</h1></li>
+                  </ul>
+                </div>
+                <h3 className="table-title">Player Stats <span><span className="dots">::</span><span>{items.latestRound[0].roundName}</span><span className="dots">::</span><span>{items.selLeague[0].leagueName} @ {items.selLeague[0].leagueAbbr}</span><span className="dots">::</span><span>{items.selSeason[0].seasonName}</span></span></h3>
+                <Form onSubmit={this.insertStatsDB}>
+                  <Table striped bordered condensed hover className="playerStatsTable">
+                    <thead>
+                      <tr>
+                        <th>RND No.</th>
+                        <th>RND ID</th>
+                        <th>PLYR ID</th>
+                        <th>Name</th>
+                        <th className="input">Points</th>
+                        <th>FTA</th>
+                        <th>FTM</th>
+                        <th>3PT</th>
+                        <th>Fouls</th>
+                        <th>Season</th>
+                        <th>Final</th>
+                        <th>Venue</th>
+                        <th>Played</th>
+                        <th>DNP</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.players.map(item => (
+                        <tr key={item.PID}>
+                          <td className="tleft round-no">{items.latestRound[0].roundName} <span>({items.prevRound[0].round + 1})</span></td>
+                          <td>{items.latestRound[0].roundID}</td>
+                          <td>{item.PID}</td>
+                          <td className="tleft p-name"><span>#{item.pno}.</span> {item.PName}</td>
+                          <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextPts" + item.PID + "InValidClass"])}>
+                             <FieldGroup
+                                name={"formControlsTextPts" + item.PID}
+                                type="text"
+                                value={players[item.PID -1]["formControlsTextPts" + item.PID]}
+                                disabled={players[item.PID -1].dnp}
+                                onChange={this.handlePlayerInputChange}
+                                data-pid={item.PID}
+                              />
+                          </td>
+                          <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextFTA" + item.PID + "InValidClass"])}>
+                             <FieldGroup
+                                name={"formControlsTextFTA" + item.PID}
+                                type="text"
+                                value={players[item.PID -1]["formControlsTextFTA" + item.PID]}
+                                disabled={players[item.PID -1].dnp}
+                                onChange={this.handlePlayerInputChange}
+                                data-pid={item.PID}
+                              />
+                          </td>
+                          <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextFTM" + item.PID + "InValidClass"])}>
+                             <FieldGroup
+                                name={"formControlsTextFTM" + item.PID}
+                                type="text"
+                                value={players[item.PID -1]["formControlsTextFTM" + item.PID]}
+                                disabled={players[item.PID -1].dnp}
+                                onChange={this.handlePlayerInputChange}
+                                data-pid={item.PID}
+                              />
+                          </td>
+                          <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsText3pt" + item.PID + "InValidClass"])}>
+                             <FieldGroup
+                                name={"formControlsText3pt" + item.PID}
+                                type="text"
+                                value={players[item.PID -1]["formControlsText3pt" + item.PID]}
+                                disabled={players[item.PID -1].dnp}
+                                onChange={this.handlePlayerInputChange}
+                                data-pid={item.PID}
+                              />
+                          </td>
+                          <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextFls" + item.PID + "InValidClass"])}>
+                             <FieldGroup
+                                name={"formControlsTextFls" + item.PID}
+                                type="text"
+                                value={players[item.PID -1]["formControlsTextFls" + item.PID]}
+                                disabled={players[item.PID -1].dnp}
+                                onChange={this.handlePlayerInputChange}
+                                data-pid={item.PID}
+                              />
+                          </td>
+                          <td>{items.latestRound[0].seasonID}</td>
+                          <td>{items.latestRound[0].final}</td>
+                          <td>{items.latestRound[0].comp}</td>
+                          <td>
+                            <span>{players[item.PID -1].played}</span>
+                          </td>
+                          <td>
+                            <Checkbox name={"checkDNP" + item.PID} data-pid={item.PID} onChange={this.handleCheckboxDNP}></Checkbox>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                  <Button type="submit" disabled={!playersFormValid}>Submit Player Stats</Button>
+                </Form>
+                <h3 className="table-title">Results<span><span className="dots">::</span><span>{items.latestRound[0].roundName}</span><span className="dots">::</span><span>{items.selLeague[0].leagueName} @ {items.selLeague[0].leagueAbbr}</span><span className="dots">::</span><span>{items.selSeason[0].seasonName}</span></span></h3>
+                <Form onSubmit={this.updateResultsDB}>
+                  <Table striped bordered condensed hover>
+                    <thead>
+                      <tr>
+                        <th>Round No.</th>
+                        <th>Round ID</th>
+                        <th>Team 1</th>
+                        <th>Points</th>
+                        <th>Result</th>
+                        <th>Points</th>
+                        <th>Team 2</th>
+                        <th>Played</th>
+                        <th>Bye</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
                         <td className="tleft round-no">{items.latestRound[0].roundName} <span>({items.prevRound[0].round + 1})</span></td>
                         <td>{items.latestRound[0].roundID}</td>
-                        <td>{item.PID}</td>
-                        <td className="tleft p-name"><span>#{item.pno}.</span> {item.PName}</td>
-                        <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextPts" + item.PID + "InValidClass"])}>
-                           <FieldGroup
-                              name={"formControlsTextPts" + item.PID}
+                        <td>{items.latestRound[0].t1}</td>
+                        <td className={this.errorClass(this.state.resultFormErrors.t1Pts)}>
+                            <FieldGroup
+                              name="t1Pts"
                               type="text"
-                              value={players[item.PID -1]["formControlsTextPts" + item.PID]}
-                              disabled={players[item.PID -1].dnp}
-                              onChange={this.handlePlayerInputChange}
-                              data-pid={item.PID}
+                              value={t1Pts}
+                              disabled={byeIsChecked}
+                              onChange={this.handleInputChange}
+                              onBlur={this.updatePlayedRes}
                             />
-                        </td>
-                        <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextFTA" + item.PID + "InValidClass"])}>
-                           <FieldGroup
-                              name={"formControlsTextFTA" + item.PID}
-                              type="text"
-                              value={players[item.PID -1]["formControlsTextFTA" + item.PID]}
-                              disabled={players[item.PID -1].dnp}
-                              onChange={this.handlePlayerInputChange}
-                              data-pid={item.PID}
-                            />
-                        </td>
-                        <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextFTM" + item.PID + "InValidClass"])}>
-                           <FieldGroup
-                              name={"formControlsTextFTM" + item.PID}
-                              type="text"
-                              value={players[item.PID -1]["formControlsTextFTM" + item.PID]}
-                              disabled={players[item.PID -1].dnp}
-                              onChange={this.handlePlayerInputChange}
-                              data-pid={item.PID}
-                            />
-                        </td>
-                        <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsText3pt" + item.PID + "InValidClass"])}>
-                           <FieldGroup
-                              name={"formControlsText3pt" + item.PID}
-                              type="text"
-                              value={players[item.PID -1]["formControlsText3pt" + item.PID]}
-                              disabled={players[item.PID -1].dnp}
-                              onChange={this.handlePlayerInputChange}
-                              data-pid={item.PID}
-                            />
-                        </td>
-                        <td className={'input ' + this.errorClassPlayers(players[item.PID -1]["formControlsTextFls" + item.PID + "InValidClass"])}>
-                           <FieldGroup
-                              name={"formControlsTextFls" + item.PID}
-                              type="text"
-                              value={players[item.PID -1]["formControlsTextFls" + item.PID]}
-                              disabled={players[item.PID -1].dnp}
-                              onChange={this.handlePlayerInputChange}
-                              data-pid={item.PID}
-                            />
-                        </td>
-                        <td>{items.latestRound[0].seasonID}</td>
-                        <td>{items.latestRound[0].final}</td>
-                        <td>{items.latestRound[0].comp}</td>
-                        <td>
-                          <span>{players[item.PID -1].played}</span>
                         </td>
                         <td>
-                          <Checkbox name={"checkDNP" + item.PID} data-pid={item.PID} onChange={this.handleCheckboxDNP}></Checkbox>
+                          <FormGroup controlId="formControlsSelectResult">
+                            <FormControl componentClass="select" name="selectRes" value={selectRes} onChange={this.handleInputChange}>
+                              {resultOptions.map(item => (
+                                <option key={item.key} value={item.val}>{item.val}</option>
+                              ))}
+                            </FormControl>
+                          </FormGroup>
                         </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-                <Button type="submit" disabled={!playersFormValid}>Submit Player Stats</Button>
-              </Form>
-              <h3 className="table-title">Results<span><span className="dots">::</span><span>{items.latestRound[0].roundName}</span><span className="dots">::</span><span>{items.selLeague[0].leagueName} @ {items.selLeague[0].leagueAbbr}</span><span className="dots">::</span><span>{items.selSeason[0].seasonName}</span></span></h3>
-              <Form onSubmit={this.updateResultsDB}>
-                <Table striped bordered condensed hover>
-                  <thead>
-                    <tr>
-                      <th>Round No.</th>
-                      <th>Round ID</th>
-                      <th>Team 1</th>
-                      <th>Points</th>
-                      <th>Result</th>
-                      <th>Points</th>
-                      <th>Team 2</th>
-                      <th>Played</th>
-                      <th>Bye</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="tleft round-no">{items.latestRound[0].roundName} <span>({items.prevRound[0].round + 1})</span></td>
-                      <td>{items.latestRound[0].roundID}</td>
-                      <td>{items.latestRound[0].t1}</td>
-                      <td className={this.errorClass(this.state.resultFormErrors.t1Pts)}>
-                          <FieldGroup
-                            name="t1Pts"
+                        <td className={this.errorClass(this.state.resultFormErrors.t2Pts)}><FieldGroup
+                            name="t2Pts"
                             type="text"
-                            value={t1Pts}
+                            value={t2Pts}
                             disabled={byeIsChecked}
                             onChange={this.handleInputChange}
-                            onBlur={this.updatePlayedRes}
-                          />
-                      </td>
-                      <td>
-                        <FormGroup controlId="formControlsSelectResult">
-                          <FormControl componentClass="select" name="selectRes" value={selectRes} onChange={this.handleInputChange}>
-                            {resultOptions.map(item => (
-                              <option key={item.key} value={item.val}>{item.val}</option>
-                            ))}
-                          </FormControl>
-                        </FormGroup>
-                      </td>
-                      <td className={this.errorClass(this.state.resultFormErrors.t2Pts)}><FieldGroup
-                          name="t2Pts"
-                          type="text"
-                          value={t2Pts}
-                          disabled={byeIsChecked}
-                          onChange={this.handleInputChange}
-                        /></td>
-                      <td>{items.latestRound[0].t2}</td>
-                      <td>{this.state.teamGamePlayed}</td>
-                      <td><Checkbox id="checkBye" onChange={this.handleCheckboxBye} checked={byeIsChecked}></Checkbox></td>
-                    </tr>
-                  </tbody>
-                </Table>
-                <Button type="submit" disabled={!resultFormValid}>Submit Game Score</Button>
-              </Form>
+                          /></td>
+                        <td>{items.latestRound[0].t2}</td>
+                        <td>{this.state.teamGamePlayed}</td>
+                        <td><Checkbox id="checkBye" onChange={this.handleCheckboxBye} checked={byeIsChecked}></Checkbox></td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                  <Button type="submit" disabled={!resultFormValid}>Submit Game Score</Button>
+                </Form>
+                </Col>
+              </Row>
+          </Grid>
+          <footer className="footer">
+            <div className="content clearfix">
+                <div className="hr faded hidden-desktop"></div>
+                <div className="logo-menu">
+                    <a href="#" className="logo med">
+                        <h4>Basketball club est. 2004</h4>
+                  <h3><span className="text">The B</span><span className="icon"></span><span className="text last">Sharps</span></h3>
+                    </a>
+                    <ul className="primary">
+                        <li className="sub">
+                            <a href="/team" className="clearfix">the team</a>
+                        </li>
+                        <li className="sub">
+                            <a href="/results-schedule" className="clearfix">results &amp; schedule</a>
+                        </li>
+                        <li className="sub">
+                            <a href="/stats/" className="clearfix">stats</a>
+                        </li>
+                        <li><a href="/ladder" className="clearfix">ladder</a></li>
+                    </ul>
+                </div>
+
+                <div className="web-by">
+                    <a href="http://www.webjho.com" className="logo-webjho" target="_blank"><img src="/static/img/logo-webjho.png" alt="webjho.com" /></a>
+                </div>
+            </div>
+          </footer>
+        </div>
+      );
+    } else {
+        return (
+        <div>
+          <div className="main-header">
+            <div className="logo-container">
+                <a href="/" className="logo main">
+                <h4>Basketball club est. 2004</h4>
+                <h3><span className="text">The B</span><span className="icon"></span><span className="text last">Sharps</span></h3>
+              </a>
+            </div>
+            <div className="hr clearfix"></div>
+          </div>
+          <Grid>
+            <Row className="show-grid">
+              <Col xs={12} md={12}>
+                <div className="crumbs clearfix">
+                  <ul>
+                    <li className="title"><h1>Stat Man</h1></li>
+                  </ul>
+                </div>
+                <div className="wrapper">
+                  <p className="no-match">Sorry, no upcoming matches.</p>
+                  <p className="no-match">go <a href="/">home</a>.</p>
+                </div>
               </Col>
             </Row>
-        </Grid>
+          </Grid>
+          <footer className="footer">
+            <div className="content clearfix">
+                <div className="hr faded hidden-desktop"></div>
+                <div className="logo-menu">
+                    <a href="#" className="logo med">
+                        <h4>Basketball club est. 2004</h4>
+                  <h3><span className="text">The B</span><span className="icon"></span><span className="text last">Sharps</span></h3>
+                    </a>
+                    <ul className="primary">
+                        <li className="sub">
+                            <a href="/team" className="clearfix">the team</a>
+                        </li>
+                        <li className="sub">
+                            <a href="/results-schedule" className="clearfix">results &amp; schedule</a>
+                        </li>
+                        <li className="sub">
+                            <a href="/stats/" className="clearfix">stats</a>
+                        </li>
+                        <li><a href="/ladder" className="clearfix">ladder</a></li>
+                    </ul>
+                </div>
+
+                <div className="web-by">
+                    <a href="http://www.webjho.com" className="logo-webjho" target="_blank"><img src="/static/img/logo-webjho.png" alt="webjho.com" /></a>
+                </div>
+            </div>
+          </footer>
+        </div>
       );
     }
   }

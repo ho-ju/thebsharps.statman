@@ -87,12 +87,17 @@ h4 {
   margin-bottom: 0.5em !important; }
 
 body {
-  background: url("//thebsharps/static/img/bg-home-03.jpg") top right no-repeat fixed;
+  background: url("/static/img/bg-home-03.jpg") top right no-repeat fixed;
   font-size: 11px;
   color: #333; }
+  @media unquote {
+    body {
+      background-size: 100%; } }
+
+.main-header {
+  padding: 35px 35px 0; }
 
 .logo {
-  padding-top: 35px;
   display: block;
   margin-bottom: 30px;
   width: 555px; }
@@ -121,7 +126,7 @@ body {
     .logo h3 .icon {
       display: table-cell;
       vertical-align: middle;
-      background: url("//thebsharps/static/img/logo-star.png") center left no-repeat;
+      background: url("/static/img/logo-star.png") center left no-repeat;
       background-size: contain;
       width: 50px; }
       @media unquote {
@@ -177,6 +182,12 @@ body {
   margin: 15px 0; }
   .hr.faded {
     opacity: 0.5; }
+
+.no-match {
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.1em;
+  font-family: "Oswald", sans-serif !important; }
 
 /***********************
 *
@@ -309,10 +320,117 @@ table.table tbody tr {
 button[type=submit] {
   text-align: center;
   display: block;
-  margin: 0 auto 30px; }
+  margin: 0 auto 60px; }
 
 .table-striped > tbody > tr:nth-of-type(odd) {
   background-color: rgba(51, 51, 51, 0.06) !important; }
+
+/***********************
+*
+* Footer
+*
+************************/
+.wrapper {
+  padding: 0 30px;
+  padding-bottom: 144px;
+  position: relative;
+  min-height: calc(78vh - 43px); }
+
+.main-wrapper {
+  position: relative; }
+  .main-wrapper .container {
+    padding-bottom: 144px;
+    position: relative; }
+
+footer {
+  background: rgba(255, 255, 255, 0);
+  background: -moz-linear-gradient(top, rgba(255, 255, 255, 0) 0%, #fdfdfd 50%, #fafafa 100%);
+  background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(255, 255, 255, 0)), color-stop(50%, #fdfdfd), color-stop(100%, #fafafa));
+  background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0) 0%, #fdfdfd 50%, #fafafa 100%);
+  background: -o-linear-gradient(top, rgba(255, 255, 255, 0) 0%, #fdfdfd 50%, #fafafa 100%);
+  background: -ms-linear-gradient(top, rgba(255, 255, 255, 0) 0%, #fdfdfd 50%, #fafafa 100%);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #fdfdfd 50%, #fafafa 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#fafafa', GradientType=0);
+  position: absolute;
+  width: 100%;
+  bottom: 0; }
+  @media unquote {
+    footer {
+      margin-top: 30px;
+      position: static; } }
+  footer .content {
+    padding: 35px; }
+    @media unquote {
+      footer .content {
+        padding: 20px 10px; } }
+    footer .content .logo-menu {
+      float: left;
+      width: 80%; }
+      @media unquote {
+        footer .content .logo-menu {
+          width: 100%;
+          float: none; } }
+      footer .content .logo-menu .logo {
+        margin-bottom: 0;
+        display: block; }
+        @media unquote {
+          footer .content .logo-menu .logo {
+            display: block;
+            margin-bottom: 20px; } }
+      footer .content .logo-menu ul {
+        margin: 0;
+        padding: 0; }
+        footer .content .logo-menu ul li {
+          display: inline-block;
+          margin-right: 15px;
+          border-right: 1px solid #555; }
+          @media unquote {
+            footer .content .logo-menu ul li {
+              border: none; } }
+          @media unquote {
+            footer .content .logo-menu ul li {
+              display: block;
+              margin: 0 0 10px;
+              line-height: 1em; } }
+          footer .content .logo-menu ul li a {
+            text-decoration: none;
+            font-family: "Oswald", sans-serif !important;
+            color: #000;
+            font-size: 10px;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            display: block;
+            margin-right: 15px;
+            border-bottom: 1px solid transparent; }
+            footer .content .logo-menu ul li a:visited {
+              color: #000; }
+            footer .content .logo-menu ul li a:hover {
+              text-decoration: none;
+              border-bottom: 1px solid #333; }
+            @media unquote {
+              footer .content .logo-menu ul li a {
+                letter-spacing: 0.2em;
+                border: none; } }
+          footer .content .logo-menu ul li.divide {
+            border-right: 1px solid #333; }
+          footer .content .logo-menu ul li:last-child {
+            margin: 0;
+            border-right: none; }
+            footer .content .logo-menu ul li:last-child a {
+              margin: 0;
+              padding: 0;
+              border: none; }
+    footer .content .web-by {
+      float: right;
+      width: 20%;
+      text-align: right; }
+      @media unquote {
+        footer .content .web-by {
+          float: right;
+          width: auto;
+          margin-top: -57px; }
+          footer .content .web-by img {
+            width: 100px; } }
 
 .App {
   text-align: center; }
